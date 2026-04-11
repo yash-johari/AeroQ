@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Landing.module.css';
 import { Zap, Shield, BarChart3, Globe, ArrowRight, Cpu } from 'lucide-react';
+import img1 from "../../assets/quantum-wind-prediction-model.png"
 
 const Landing = () => {
   return (
@@ -28,7 +29,7 @@ const Landing = () => {
           <div className={styles.heroImage}>
             <div className={styles.abstractShape}></div>
             <img 
-              src="https://picsum.photos/seed/turbine/800/600" 
+              src={img1} 
               alt="Advanced Wind Turbine Technology" 
               className={styles.mainImg}
               referrerPolicy="no-referrer"
