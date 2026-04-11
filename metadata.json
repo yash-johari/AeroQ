@@ -1,0 +1,5 @@
+{
+  "name": "AeroQ",
+  "description": "A hybrid wind speed prediction system combining quantum computing concepts and classification algorithms.",
+  "requestFramePermissions": []
+}
