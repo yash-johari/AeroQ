@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { ArrowUp } from 'lucide-react';
 import styles from './ScrollToTop.module.css';
 
-const ScrollToTop: React.FC = () => {
+const ScrollToTop = () => {
   const { pathname } = useLocation();
   const [isVisible, setIsVisible] = useState(false);
 

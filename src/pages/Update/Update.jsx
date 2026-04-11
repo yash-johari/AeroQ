@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Update.module.css';
 import { User, Mail, MapPin, FileText, Save, ArrowLeft } from 'lucide-react';
 
-const Update: React.FC = () => {
+const Update = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: 'Yash Johari',
@@ -12,12 +12,12 @@ const Update: React.FC = () => {
     bio: 'Professional developer interested in renewable energy and quantum computing applications.'
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // Simulate API call
     console.log('Profile updated:', formData);

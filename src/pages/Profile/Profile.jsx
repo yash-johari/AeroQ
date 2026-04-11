@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Profile.module.css';
-import { User, Mail, Calendar, MapPin, Edit } from 'lucide-react';
+import { Mail, Calendar, MapPin, Edit } from 'lucide-react';
 
-const Profile: React.FC = () => {
+const Profile = () => {
   // Mock user data
   const user = {
     name: 'Yash Johari',

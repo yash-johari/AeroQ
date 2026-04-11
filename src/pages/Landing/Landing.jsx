@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from './Landing.module.css';
 import { Zap, Shield, BarChart3, Globe, ArrowRight, Cpu } from 'lucide-react';
 
-const Landing: React.FC = () => {
+const Landing = () => {
   return (
     <div className={styles.landing}>
       {/* Hero Section */}

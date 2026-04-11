@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Dashboard.module.css';
 import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area,
   BarChart, Bar
 } from 'recharts';
 import { 
-  Wind, Thermometer, Droplets, Calendar, MapPin, Filter, 
+  Wind, Thermometer, Droplets, Calendar, MapPin, 
   ArrowUpRight, ArrowDownRight, RefreshCw
 } from 'lucide-react';
 
 // Mock Data
-const generateMockData = (region: string) => {
+const generateMockData = (region) => {
   const data = [];
   const baseWind = region === 'North' ? 15 : region === 'South' ? 10 : 12;
   const baseTemp = region === 'North' ? 18 : region === 'South' ? 25 : 22;
@@ -26,7 +26,7 @@ const generateMockData = (region: string) => {
   return data;
 };
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const [region, setRegion] = useState('Global');
   const [dateRange, setDateRange] = useState('Next Day');
   const [data, setData] = useState(generateMockData('Global'));

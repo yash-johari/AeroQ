@@ -9,7 +9,7 @@ import Auth from './pages/Auth/Auth';
 import Profile from './pages/Profile/Profile';
 import Update from './pages/Update/Update';
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
       <div className="app-container">
