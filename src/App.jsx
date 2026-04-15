@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Auth from './pages/Auth/Auth';
 import Profile from './pages/Profile/Profile';
 import Update from './pages/Update/Update';
+import Predictor from './pages/Predictor/Predictor';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/update" element={<Update />} />
+            <Route path="/predictor" element={<Predictor />} />
             {/* Fallback for undefined routes */}
             <Route path="*" element={<Landing />} />
           </Routes>

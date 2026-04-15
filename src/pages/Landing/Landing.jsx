@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Landing.module.css';
 import { Zap, Shield, BarChart3, Globe, ArrowRight, Cpu } from 'lucide-react';
-import img1 from "../../assets/quantum-wind-prediction-model.png"
 
 const Landing = () => {
   return (
@@ -21,7 +20,7 @@ const Landing = () => {
               <Link to="/dashboard" className={styles.primaryBtn}>
                 Explore Dashboard <ArrowRight size={20} />
               </Link>
-              <Link to="/auth" className={styles.secondaryBtn}>
+              <Link to="/predictor" className={styles.secondaryBtn}>
                 Get Started
               </Link>
             </div>
@@ -29,7 +28,7 @@ const Landing = () => {
           <div className={styles.heroImage}>
             <div className={styles.abstractShape}></div>
             <img 
-              src={img1} 
+              src="https://picsum.photos/seed/turbine/800/600" 
               alt="Advanced Wind Turbine Technology" 
               className={styles.mainImg}
               referrerPolicy="no-referrer"
