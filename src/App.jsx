@@ -9,6 +9,7 @@ import Auth from './pages/Auth/Auth';
 import Profile from './pages/Profile/Profile';
 import Update from './pages/Update/Update';
 import Predictor from './pages/Predictor/Predictor';
+import ModelConfig from './pages/ModelConfig/ModelConfig';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/update" element={<Update />} />
             <Route path="/predictor" element={<Predictor />} />
+            <Route path="/config" element={<ModelConfig />} />
             {/* Fallback for undefined routes */}
             <Route path="*" element={<Landing />} />
           </Routes>

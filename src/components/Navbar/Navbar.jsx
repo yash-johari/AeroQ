@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import { Wind, User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Wind, User, LogOut, Settings, ChevronDown, Settings2 } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -51,6 +51,10 @@ const Navbar = () => {
                   <Link to="/update" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
                     <Settings size={16} />
                     <span>Update</span>
+                  </Link>
+                  <Link to="/config" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
+                    <Settings2 size={16} />
+                    <span>Configure Model</span>
                   </Link>
                   <button className={styles.dropdownItem} onClick={() => window.location.href = '/'}>
                     <LogOut size={16} />

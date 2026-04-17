@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Landing.module.css';
-import { Zap, Shield, BarChart3, Globe, ArrowRight, Cpu } from 'lucide-react';
+import { Zap, Shield, BarChart3, Globe, ArrowRight, Cpu, Settings2 } from 'lucide-react';
 
 const Landing = () => {
   return (
@@ -19,6 +19,9 @@ const Landing = () => {
             <div className={styles.heroActions}>
               <Link to="/dashboard" className={styles.primaryBtn}>
                 Explore Dashboard <ArrowRight size={20} />
+              </Link>
+              <Link to="/config" className={styles.configBtn}>
+                Configure Model <Settings2 size={20} />
               </Link>
               <Link to="/predictor" className={styles.secondaryBtn}>
                 Get Started
