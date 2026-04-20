@@ -28,12 +28,12 @@ const ModelConfig = () => {
   const [config, setConfig] = useState({
     lags: '',
     features: [],
-    featureInputs: { Humidity: '', Temperature: '', Pressure: '' },
+    numRecords: '100',
     quantum: {
       model: 'VQR',
-      featureMap: { entanglement: 'full', reps: '2' },
-      ansatz: { entanglement: 'full', reps: '3' },
-      optimizer: 'ADAM'
+      featureMap: { type: 'ZFeatureMap', params: { feature_dimension: '2', reps: '2', data_map_func: 'pauli_feature_map' } },
+      ansatz: { type: 'RealAmplitudes', params: { reps: '3', entanglement: 'full' } },
+      optimizer: { type: 'ADAM', params: { maxiter: '100', lr: '0.001', beta_1: '0.9', beta_2: '0.999' } }
     },
     classical: {
       model: '',
@@ -57,28 +57,82 @@ const ModelConfig = () => {
     setConfig({ ...config, features: newFeatures });
   };
 
-  const handleFeatureInputChange = (feature, value) => {
-    setConfig({
-      ...config,
-      featureInputs: { ...config.featureInputs, [feature]: value }
-    });
+  const handleNextToRecords = () => {
+    if (config.features.length > 0) setStep(3);
   };
 
-  const handleNextToModel = () => {
-    const allInputsFilled = config.features.every(f => config.featureInputs[f].trim() !== '');
-    if (config.features.length > 0 && allInputsFilled) {
-      setStep(3);
-    } else if (!allInputsFilled) {
-      alert('Please provide input values for all selected features.');
+  const handleNumRecordsChange = (e) => {
+    const val = e.target.value;
+    setConfig({ ...config, numRecords: val });
+  };
+
+  const handleNextToParams = () => {
+    const val = parseInt(config.numRecords);
+    if (val >= 10 && val <= 1830) {
+      setStep(4);
+    } else {
+      alert('Number of records must be between 10 and 1830');
     }
   };
 
-  const handleQuantumParam = (section, field, value) => {
+  const handleQuantumTypeChange = (type) => {
+    setConfig({ ...config, quantum: { ...config.quantum, model: type } });
+  };
+
+  const handleFeatureMapChange = (type) => {
+    let params = {};
+    if (type === 'ZFeatureMap') {
+      params = { feature_dimension: '2', reps: '2', data_map_func: 'pauli_feature_map' };
+    } else {
+      params = { reps: '2', entanglement: 'full' };
+    }
     setConfig({
       ...config,
       quantum: {
         ...config.quantum,
-        [section]: { ...config.quantum[section], [field]: value }
+        featureMap: { type, params }
+      }
+    });
+  };
+
+  const handleAnsatzChange = (type) => {
+    setConfig({
+      ...config,
+      quantum: {
+        ...config.quantum,
+        ansatz: { type, params: { reps: '3', entanglement: 'full' } }
+      }
+    });
+  };
+
+  const handleOptimizerChange = (type) => {
+    let params = {};
+    switch(type) {
+      case 'COBYLA': params = { maxiter: '100', rhobeg: '1.0', tol: '0.0001' }; break;
+      case 'SPSA': params = { maxiter: '100', learning_rate: '0.01', perturbation: '0.01', blocking: 'True', allowed_increase: '0.1' }; break;
+      case 'L_BFGS_B': params = { maxiter: '100', maxfun: '1000', factr: '10', bounds: 'None' }; break;
+      case 'ADAM': params = { maxiter: '100', lr: '0.001', beta_1: '0.9', beta_2: '0.999' }; break;
+      case 'GradientDescent': params = { maxiter: '100', learning_rate: '0.01' }; break;
+      default: params = {};
+    }
+    setConfig({
+      ...config,
+      quantum: {
+        ...config.quantum,
+        optimizer: { type, params }
+      }
+    });
+  };
+
+  const handleQuantumParamChange = (section, field, value) => {
+    setConfig({
+      ...config,
+      quantum: {
+        ...config.quantum,
+        [section]: {
+          ...config.quantum[section],
+          params: { ...config.quantum[section].params, [field]: value }
+        }
       }
     });
   };
@@ -201,25 +255,13 @@ const ModelConfig = () => {
                   >
                     {feature}
                   </button>
-                  {config.features.includes(feature) && (
-                    <div className={styles.featureInputBox}>
-                      <input 
-                        type="number" 
-                        placeholder={`Value for ${feature}`}
-                        value={config.featureInputs[feature]}
-                        onChange={(e) => handleFeatureInputChange(feature, e.target.value)}
-                        className={styles.inlineInput}
-                      />
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
             {config.features.length > 0 && step === 2 && (
               <button 
                 className={styles.stepBtn} 
-                onClick={handleNextToModel}
-                disabled={!config.features.every(f => config.featureInputs[f].trim() !== '')}
+                onClick={handleNextToRecords}
               >
                 Confirm Features <Play size={14} />
               </button>
@@ -227,11 +269,38 @@ const ModelConfig = () => {
           </section>
         )}
 
-        {/* --- STEP 3: Model Selection --- */}
+        {/* --- STEP 3: Number of Records --- */}
         {step >= 3 && (
           <section className={`${styles.configSection} ${step >= 3 ? styles.active : ''}`}>
             <div className={styles.sectionTitle}>
               <div className={styles.stepBadge}>3</div>
+              <h3>Number of Records</h3>
+              <TooltipIcon text="The total number of historical data records to use for model calibration. Valid range: 10 to 1830." />
+            </div>
+            <div className={styles.inputArea}>
+              <input 
+                type="number" 
+                min="10" 
+                max="1830"
+                value={config.numRecords}
+                onChange={handleNumRecordsChange}
+                className={styles.select}
+                placeholder="Range: 10 - 1830"
+              />
+            </div>
+            {step === 3 && (
+              <button className={styles.stepBtn} onClick={handleNextToParams}>
+                Confirm Records <Play size={14} />
+              </button>
+            )}
+          </section>
+        )}
+
+        {/* --- STEP 4: Model Selection --- */}
+        {step >= 4 && (
+          <section className={`${styles.configSection} ${step >= 4 ? styles.active : ''}`}>
+            <div className={styles.sectionTitle}>
+              <div className={styles.stepBadge}>4</div>
               <h3>Model Parameters</h3>
               <TooltipIcon text="Configure parameters for both Quantum and Classical layers." />
             </div>
@@ -241,77 +310,103 @@ const ModelConfig = () => {
               <div className={styles.subCard}>
                 <div className={styles.subHeader}>
                   <Cpu size={18} />
-                  <h4>Quantum Model (VQR)</h4>
+                  <h4>Quantum Model</h4>
                 </div>
                 
-                <div className={styles.paramGroup}>
-                  <h5>Feature Map <TooltipIcon text="Maps classical data into quantum state space." /></h5>
-                  <div className={styles.grid2}>
-                    <div className={styles.field}>
-                      <label>Entanglement</label>
-                      <select 
-                        value={config.quantum.featureMap.entanglement}
-                        onChange={(e) => handleQuantumParam('featureMap', 'entanglement', e.target.value)}
+                <div className={styles.field} style={{ marginBottom: '20px' }}>
+                  <label>Quantum Algorithm</label>
+                  <div className={styles.featureGrid} style={{ marginTop: '5px' }}>
+                    {['VQR', 'QNN'].map(type => (
+                      <button 
+                        key={type}
+                        className={`${styles.featureBtn} ${config.quantum.model === type ? styles.featureActive : ''}`}
+                        onClick={() => handleQuantumTypeChange(type)}
+                        style={{ padding: '8px 16px', minWidth: '80px' }}
                       >
-                        <option value="full">Full</option>
-                        <option value="linear">Linear</option>
-                        <option value="circular">Circular</option>
-                      </select>
-                    </div>
-                    <div className={styles.field}>
-                      <label>Reps</label>
-                      <select 
-                        value={config.quantum.featureMap.reps}
-                        onChange={(e) => handleQuantumParam('featureMap', 'reps', e.target.value)}
-                      >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.paramGroup}>
-                  <h5>Ansatz <TooltipIcon text="The variational circuit structure for the model." /></h5>
-                  <div className={styles.grid2}>
-                    <div className={styles.field}>
-                      <label>Entanglement</label>
-                      <select 
-                        value={config.quantum.ansatz.entanglement}
-                        onChange={(e) => handleQuantumParam('ansatz', 'entanglement', e.target.value)}
-                      >
-                        <option value="full">Full</option>
-                        <option value="linear">Linear</option>
-                        <option value="circular">Circular</option>
-                      </select>
-                    </div>
-                    <div className={styles.field}>
-                      <label>Reps</label>
-                      <select 
-                        value={config.quantum.ansatz.reps}
-                        onChange={(e) => handleQuantumParam('ansatz', 'reps', e.target.value)}
-                      >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                      </select>
-                    </div>
+                        {type}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 <div className={styles.paramGroup}>
                   <div className={styles.field}>
-                    <label>Optimizer <TooltipIcon text="Algorithm used to update quantum circuit weights." /></label>
+                    <label>Feature Map</label>
                     <select 
-                      value={config.quantum.optimizer}
-                      onChange={(e) => setConfig({...config, quantum: {...config.quantum, optimizer: e.target.value}})}
+                      value={config.quantum.featureMap.type}
+                      onChange={(e) => handleFeatureMapChange(e.target.value)}
+                    >
+                      <option value="ZFeatureMap">ZFeatureMap</option>
+                      <option value="ZZFeatureMap">ZZFeatureMap</option>
+                      <option value="PauliFeatureMap">PauliFeatureMap</option>
+                    </select>
+                  </div>
+                  <div className={styles.grid2} style={{ marginTop: '10px' }}>
+                    {Object.keys(config.quantum.featureMap.params).map(param => (
+                      <div key={param} className={styles.field}>
+                        <label>{param.replace('_', ' ')}</label>
+                        <input 
+                          type="text" 
+                          value={config.quantum.featureMap.params[param]} 
+                          onChange={(e) => handleQuantumParamChange('featureMap', param, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.paramGroup}>
+                  <div className={styles.field}>
+                    <label>Ansatz</label>
+                    <select 
+                      value={config.quantum.ansatz.type}
+                      onChange={(e) => handleAnsatzChange(e.target.value)}
+                    >
+                      <option value="RealAmplitudes">RealAmplitudes</option>
+                      <option value="EfficientSU2">EfficientSU2</option>
+                      <option value="TwoLocal">TwoLocal</option>
+                      <option value="NLocal">NLocal</option>
+                    </select>
+                  </div>
+                  <div className={styles.grid2} style={{ marginTop: '10px' }}>
+                    {Object.keys(config.quantum.ansatz.params).map(param => (
+                      <div key={param} className={styles.field}>
+                        <label>{param}</label>
+                        <input 
+                          type="text" 
+                          value={config.quantum.ansatz.params[param]} 
+                          onChange={(e) => handleQuantumParamChange('ansatz', param, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.paramGroup}>
+                  <div className={styles.field}>
+                    <label>Optimizer</label>
+                    <select 
+                      value={config.quantum.optimizer.type}
+                      onChange={(e) => handleOptimizerChange(e.target.value)}
                     >
                       <option value="COBYLA">COBYLA</option>
                       <option value="SPSA">SPSA</option>
+                      <option value="L_BFGS_B">L_BFGS_B</option>
                       <option value="ADAM">ADAM</option>
+                      <option value="GradientDescent">GradientDescent</option>
                     </select>
+                  </div>
+                  <div className={styles.grid2} style={{ marginTop: '10px' }}>
+                    {Object.keys(config.quantum.optimizer.params).map(param => (
+                      <div key={param} className={styles.field}>
+                        <label>{param}</label>
+                        <input 
+                          type="text" 
+                          value={config.quantum.optimizer.params[param]} 
+                          onChange={(e) => handleQuantumParamChange('optimizer', param, e.target.value)}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -340,7 +435,7 @@ const ModelConfig = () => {
                 </div>
 
                 {config.classical.model && (
-                  <div className={styles.paramGroup}>
+                  <div className={styles.paramGroup} style={{ marginTop: '20px' }}>
                     <div className={styles.grid2}>
                       {Object.keys(config.classical.params).map(param => (
                         <div key={param} className={styles.field}>
@@ -358,19 +453,19 @@ const ModelConfig = () => {
               </div>
             </div>
             
-            {config.classical.model && step === 3 && (
-              <button className={styles.stepBtn} onClick={() => setStep(4)}>
+            {config.classical.model && step === 4 && (
+              <button className={styles.stepBtn} onClick={() => setStep(5)}>
                 Generate Summary <CheckCircle2 size={14} />
               </button>
             )}
           </section>
         )}
 
-        {/* --- STEP 4: Summary & Train --- */}
-        {step >= 4 && (
+        {/* --- STEP 5: Summary & Train --- */}
+        {step >= 5 && (
           <section className={`${styles.configSection} ${styles.summarySection} ${styles.active}`}>
             <div className={styles.sectionTitle}>
-              <div className={styles.stepBadge}>4</div>
+              <div className={styles.stepBadge}>5</div>
               <h3>Configuration Summary</h3>
             </div>
             
@@ -381,17 +476,28 @@ const ModelConfig = () => {
               </div>
               <div className={styles.summaryItem}>
                 <span>Features</span>
-                <strong>
-                  {config.features.map(f => `${f} (${config.featureInputs[f]})`).join(', ')}
-                </strong>
+                <strong>{config.features.join(', ')}</strong>
               </div>
               <div className={styles.summaryItem}>
-                <span>Quantum</span>
-                <strong>{config.quantum.model} ({config.quantum.optimizer})</strong>
+                <span>Records</span>
+                <strong>{config.numRecords}</strong>
               </div>
-              <div className={styles.summaryItem}>
-                <span>Classical</span>
-                <strong>{config.classical.model}</strong>
+            </div>
+
+            <div className={styles.summaryDetails}>
+              <div className={styles.summaryCard}>
+                <h5>Quantum Pipeline ({config.quantum.model})</h5>
+                <div className={styles.summaryParams}>
+                  <p><strong>Feature Map:</strong> {config.quantum.featureMap.type} ({Object.entries(config.quantum.featureMap.params).map(([k,v])=>`${k}:${v}`).join(', ')})</p>
+                  <p><strong>Ansatz:</strong> {config.quantum.ansatz.type} ({Object.entries(config.quantum.ansatz.params).map(([k,v])=>`${k}:${v}`).join(', ')})</p>
+                  <p><strong>Optimizer:</strong> {config.quantum.optimizer.type} ({Object.entries(config.quantum.optimizer.params).map(([k,v])=>`${k}:${v}`).join(', ')})</p>
+                </div>
+              </div>
+              <div className={styles.summaryCard}>
+                <h5>Classical Model ({config.classical.model})</h5>
+                <div className={styles.summaryParams}>
+                  <p><strong>Hyperparameters:</strong> {Object.entries(config.classical.params).map(([k,v])=>`${k}:${v}`).join(', ')}</p>
+                </div>
               </div>
             </div>
 
@@ -491,7 +597,6 @@ const ModelConfig = () => {
                       <tr>
                         <th>Day</th>
                         <th>Predicted Speed</th>
-                        <th>Condition Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -499,11 +604,6 @@ const ModelConfig = () => {
                         <tr key={i}>
                           <td>{f.day}</td>
                           <td><strong>{f.speed}</strong></td>
-                          <td>
-                            <span className={`${styles.statusBadge} ${styles[f.status.toLowerCase()]}`}>
-                              {f.status}
-                            </span>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
