@@ -10,12 +10,17 @@ import Profile from './pages/Profile/Profile';
 import Update from './pages/Update/Update';
 import Predictor from './pages/Predictor/Predictor';
 import ModelConfig from './pages/ModelConfig/ModelConfig';
+import Learning from './pages/Learning/Learning';
+import ModelExplanation from './pages/ModelExplanation/ModelExplanation';
+import Recommendation from './pages/Recommendation/Recommendation';
+import Sidebar from './components/Sidebar/Sidebar';
 
 const App = () => {
   return (
     <Router>
       <div className="app-container">
         <Navbar />
+        <Sidebar />
         <main>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -25,6 +30,9 @@ const App = () => {
             <Route path="/update" element={<Update />} />
             <Route path="/predictor" element={<Predictor />} />
             <Route path="/config" element={<ModelConfig />} />
+            <Route path="/learning" element={<Learning />} />
+            <Route path="/explanation" element={<ModelExplanation />} />
+            <Route path="/recommendation" element={<Recommendation />} />
             {/* Fallback for undefined routes */}
             <Route path="*" element={<Landing />} />
           </Routes>
