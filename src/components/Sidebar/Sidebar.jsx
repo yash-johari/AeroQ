@@ -70,7 +70,7 @@ const Sidebar = () => {
               </nav>
 
               <div className={styles.sidebarFooter}>
-                <p>© 2026 AeroQ Analytics</p>
+                <p>© 2026 AeroQ</p>
               </div>
             </motion.div>
           </>
