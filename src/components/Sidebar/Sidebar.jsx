@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, X, BookOpen, FileText, Lightbulb, 
-  ChevronRight, Sparkles
+  ChevronRight, Sparkles, ChevronDown
 } from 'lucide-react';
+import { LEARNING_DATA } from '../../constants/learningContent';
 import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const [learningOpen, setLearningOpen] = useState(location.pathname.startsWith('/learning'));
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
-
-  const navItems = [
-    { name: 'Learning', path: '/learning', icon: <BookOpen size={20} /> },
-    { name: 'Model Explanation', path: '/explanation', icon: <FileText size={20} /> },
-    { name: 'Recommendation', path: '/recommendation', icon: <Lightbulb size={20} /> },
-  ];
 
   return (
     <>
@@ -53,24 +50,75 @@ const Sidebar = () => {
               </button>
 
               <nav className={styles.nav}>
-                {navItems.map((item) => (
-                  <NavLink 
-                    key={item.path}
-                    to={item.path}
-                    className={({ isActive }) => 
-                      `${styles.navItem} ${isActive ? styles.active : ''}`
-                    }
-                    onClick={closeSidebar}
+                {/* Learning Main Item */}
+                <div className={styles.navGroup}>
+                  <button 
+                    className={`${styles.navItem} ${location.pathname.startsWith('/learning') ? styles.active : ''}`}
+                    onClick={() => setLearningOpen(!learningOpen)}
                   >
-                    <span className={styles.icon}>{item.icon}</span>
-                    <span className={styles.name}>{item.name}</span>
-                    <ChevronRight size={16} className={styles.chevron} />
-                  </NavLink>
-                ))}
+                    <span className={styles.icon}><BookOpen size={20} /></span>
+                    <span className={styles.name}>Learning</span>
+                    <motion.div
+                      animate={{ rotate: learningOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className={styles.chevronWrap}
+                    >
+                      <ChevronDown size={16} />
+                    </motion.div>
+                  </button>
+                  
+                  <AnimatePresence>
+                    {learningOpen && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className={styles.submenu}
+                      >
+                        {LEARNING_DATA.map((item) => (
+                          <NavLink 
+                            key={item.slug}
+                            to={`/learning/${item.slug}`}
+                            className={({ isActive }) => 
+                              `${styles.submenuItem} ${isActive ? styles.submenuActive : ''}`
+                            }
+                            onClick={closeSidebar}
+                          >
+                            <span>{item.shortTitle}</span>
+                          </NavLink>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <NavLink 
+                  to="/explanation"
+                  className={({ isActive }) => 
+                    `${styles.navItem} ${isActive ? styles.active : ''}`
+                  }
+                  onClick={closeSidebar}
+                >
+                  <span className={styles.icon}><FileText size={20} /></span>
+                  <span className={styles.name}>Model Explanation</span>
+                  <ChevronRight size={16} className={styles.chevron} />
+                </NavLink>
+
+                <NavLink 
+                  to="/recommendation"
+                  className={({ isActive }) => 
+                    `${styles.navItem} ${isActive ? styles.active : ''}`
+                  }
+                  onClick={closeSidebar}
+                >
+                  <span className={styles.icon}><Lightbulb size={20} /></span>
+                  <span className={styles.name}>Recommendation</span>
+                  <ChevronRight size={16} className={styles.chevron} />
+                </NavLink>
               </nav>
 
               <div className={styles.sidebarFooter}>
-                <p>© 2026 AeroQ</p>
+                <p>© 2026 AeroQ Analytics</p>
               </div>
             </motion.div>
           </>

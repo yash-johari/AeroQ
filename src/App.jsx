@@ -31,6 +31,7 @@ const App = () => {
             <Route path="/predictor" element={<Predictor />} />
             <Route path="/config" element={<ModelConfig />} />
             <Route path="/learning" element={<Learning />} />
+            <Route path="/learning/:slug" element={<Learning />} />
             <Route path="/explanation" element={<ModelExplanation />} />
             <Route path="/recommendation" element={<Recommendation />} />
             {/* Fallback for undefined routes */}
