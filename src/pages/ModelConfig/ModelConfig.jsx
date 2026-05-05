@@ -31,7 +31,7 @@ const ModelConfig = () => {
     numRecords: '100',
     quantum: {
       model: 'VQR',
-      featureMap: { type: 'ZFeatureMap', params: { feature_dimension: '2', reps: '2', data_map_func: 'pauli_feature_map' } },
+      featureMap: { type: 'ZFeatureMap', params: { reps: '2' } },
       ansatz: { type: 'RealAmplitudes', params: { reps: '3', entanglement: 'full' } },
       optimizer: { type: 'ADAM', params: { maxiter: '100', lr: '0.001', beta_1: '0.9', beta_2: '0.999' } }
     },
@@ -81,8 +81,8 @@ const ModelConfig = () => {
 
   const handleFeatureMapChange = (type) => {
     let params = {};
-    if (type === 'ZFeatureMap') {
-      params = { feature_dimension: '2', reps: '2', data_map_func: 'pauli_feature_map' };
+    if (type === 'ZFeatureMap' || type === 'ZZFeatureMap' || type === 'PauliFeatureMap') {
+      params = { reps: '2' };
     } else {
       params = { reps: '2', entanglement: 'full' };
     }
@@ -372,11 +372,21 @@ const ModelConfig = () => {
                     {Object.keys(config.quantum.ansatz.params).map(param => (
                       <div key={param} className={styles.field}>
                         <label>{param}</label>
-                        <input 
-                          type="text" 
-                          value={config.quantum.ansatz.params[param]} 
-                          onChange={(e) => handleQuantumParamChange('ansatz', param, e.target.value)}
-                        />
+                        {param === 'entanglement' ? (
+                          <select 
+                            value={config.quantum.ansatz.params[param]} 
+                            onChange={(e) => handleQuantumParamChange('ansatz', param, e.target.value)}
+                          >
+                            <option value="full">full</option>
+                            <option value="linear">linear</option>
+                          </select>
+                        ) : (
+                          <input 
+                            type="text" 
+                            value={config.quantum.ansatz.params[param]} 
+                            onChange={(e) => handleQuantumParamChange('ansatz', param, e.target.value)}
+                          />
+                        )}
                       </div>
                     ))}
                   </div>

@@ -3,7 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, X, BookOpen, FileText, Lightbulb, 
-  ChevronRight, Sparkles, ChevronDown
+  ChevronRight, Sparkles, ChevronDown,
+  LayoutDashboard, Settings, Zap
 } from 'lucide-react';
 import { LEARNING_DATA } from '../../constants/learningContent';
 import styles from './Sidebar.module.css';
@@ -16,10 +17,12 @@ const Sidebar = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
 
+  const isHomePage = location.pathname === '/';
+
   return (
     <>
       {/* Toggle Button (Open) */}
-      {!isOpen && (
+      {!isOpen && !isHomePage && (
         <button className={styles.toggleBtn} onClick={toggleSidebar}>
           <Menu size={24} />
         </button>
@@ -50,6 +53,45 @@ const Sidebar = () => {
               </button>
 
               <nav className={styles.nav}>
+                {/* Main Dashboard & Config */}
+                <NavLink 
+                  to="/dashboard"
+                  className={({ isActive }) => 
+                    `${styles.navItem} ${isActive ? styles.active : ''}`
+                  }
+                  onClick={closeSidebar}
+                >
+                  <span className={styles.icon}><LayoutDashboard size={20} /></span>
+                  <span className={styles.name}>Dashboard</span>
+                  <ChevronRight size={16} className={styles.chevron} />
+                </NavLink>
+
+                <NavLink 
+                  to="/config"
+                  className={({ isActive }) => 
+                    `${styles.navItem} ${isActive ? styles.active : ''}`
+                  }
+                  onClick={closeSidebar}
+                >
+                  <span className={styles.icon}><Settings size={20} /></span>
+                  <span className={styles.name}>Model Configuration</span>
+                  <ChevronRight size={16} className={styles.chevron} />
+                </NavLink>
+
+                <NavLink 
+                  to="/predictor"
+                  className={({ isActive }) => 
+                    `${styles.navItem} ${isActive ? styles.active : ''}`
+                  }
+                  onClick={closeSidebar}
+                >
+                  <span className={styles.icon}><Zap size={20} /></span>
+                  <span className={styles.name}>Prediction</span>
+                  <ChevronRight size={16} className={styles.chevron} />
+                </NavLink>
+
+                <div className={styles.divider} />
+
                 {/* Learning Main Item */}
                 <div className={styles.navGroup}>
                   <button 
